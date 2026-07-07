@@ -1898,7 +1898,7 @@ function removeDdexTemporaryOpponentSet() {
 		if (!ref) continue;
 		var speciesName = ref.speciesName;
 		var setName = ref.setName;
-		if (setdex[speciesName] && setdex[speciesName][setName] && setdex[speciesName][setName].isTemporaryOpponentSet) {
+		if (setdex[speciesName] && setdex[speciesName][setName] && setdex[speciesName][setName].isDdexTeamMon) {
 			delete setdex[speciesName][setName];
 			if (Object.keys(setdex[speciesName]).length === 0) {
 				delete setdex[speciesName];
@@ -1907,6 +1907,9 @@ function removeDdexTemporaryOpponentSet() {
 	}
 
 	ddexTemporaryOpponentSetRefs = [];
+	if (typeof get_trainer_names === "function") {
+		try { TR_NAMES = get_trainer_names(); } catch (e) {}
+	}
 }
 
 function buildDdexTemporaryOpponentSet(parsed, meta) {
@@ -1927,7 +1930,9 @@ function buildDdexTemporaryOpponentSet(parsed, meta) {
 		sub_index: typeof meta.sub_index === "number" ? meta.sub_index : 0,
 		tr_id: meta.tr_id || "",
 		isCustomSet: true,
-		isTemporaryOpponentSet: true,
+		// Marks our injected opponent-team sets. NOT isTemporaryOpponentSet — that flag routes
+		// selection into the lone-wild branch (no party); we want these to group as a trainer.
+		isDdexTeamMon: true,
 	};
 }
 
@@ -1942,7 +1947,6 @@ function selectDdexTemporaryOpponent(speciesName, setName) {
 			text: fullSetName,
 			pokemon: speciesName,
 			set: setName,
-			isTemporaryOpponentSet: true,
 		});
 	}
 	selector.change();
@@ -1968,9 +1972,12 @@ function importDdexTemporaryOpponent(text) {
 
 	for (var i = 0; i < team.mons.length; i++) {
 		var mon = team.mons[i];
-		var setName = "Lvl " + mon.level + " " + team.trainerName;
+		// Trailing space is load-bearing: get_trainer_poks groups a trainer's mons by
+		// finding "Lvl <n> <trainer> " (with the space) in each set id, matching the real
+		// data's naming. Without it the mons don't group into a selectable party.
+		var setName = "Lvl " + mon.level + " " + team.trainerName + " ";
 		if (setdex[mon.speciesName] && setdex[mon.speciesName][setName]) {
-			setName += " #" + (i + 1);
+			setName = "Lvl " + mon.level + " " + team.trainerName + " " + (i + 1) + " ";
 		}
 		if (!setdex[mon.speciesName]) {
 			setdex[mon.speciesName] = {};

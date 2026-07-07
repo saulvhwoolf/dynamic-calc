@@ -2522,7 +2522,7 @@ $(".set-selector").change(function () {
 		refreshChallengeModeLevelBadge(selectedSet)
 	}
 
-	if ($(this).hasClass('opposing') && !isTemporaryOpponentSet && typeof removeDdexTemporaryOpponentSet === "function") {
+	if ($(this).hasClass('opposing') && !isTemporaryOpponentSet && !(selectedSet && selectedSet.isDdexTeamMon) && typeof removeDdexTemporaryOpponentSet === "function") {
 		removeDdexTemporaryOpponentSet()
 	}
 
