@@ -1,0 +1,12 @@
+{
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/img/:path*",
+      "destination": "https://hzla.github.io/Dynamic-Calc-Decomps/img/:path*",
+      "permanent": false
+    }
+  ]
+}

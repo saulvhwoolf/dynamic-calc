@@ -1,0 +1,13 @@
+.git
+img
+backups
+cypress
+cypress.config.js
+lua
+tools
+scripts
+agent_notes
+*.md
+*.txt
+.DS_Store
+**/.DS_Store

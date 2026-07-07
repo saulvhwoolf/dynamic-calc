@@ -1,0 +1,9 @@
+img/
+backups/
+cypress/
+lua/
+tools/
+agent_notes/
+node_modules/
+.DS_Store
+**/.DS_Store
