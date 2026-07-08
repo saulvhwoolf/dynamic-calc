@@ -664,6 +664,24 @@ function compareBoxSortValues(leftValue, rightValue) {
     return BOX_SORT_STATE.direction === "desc" ? -numericDiff : numericDiff
 }
 
+// slothsandmoons tracker labels imported mons "Party - x" / "Box - x" in the nickname.
+// Group them Party (0) -> Box (1) -> everything else (2) so the box keeps the tracker's
+// pools; the selected metric still orders within each group. No-op for other users
+// (their mons have no such prefix, so all land in group 2).
+function getBoxGroupRank(setId) {
+    try {
+        var species = getBoxSpeciesNameFromSetId(setId)
+        var setName = setId.substring(setId.indexOf('(') + 1, setId.lastIndexOf(')'))
+        var setData =
+            (typeof setdex !== 'undefined' && setdex[species] && setdex[species][setName]) ||
+            (typeof customSets !== 'undefined' && customSets[species] && customSets[species][setName])
+        var nn = setData && setData.nn ? String(setData.nn).trim() : ''
+        return /^Party($| - )/.test(nn) ? 0 : /^Box($| - )/.test(nn) ? 1 : 2
+    } catch (e) {
+        return 2
+    }
+}
+
 function applyCurrentBoxSort(selector, sortValueMap) {
     var container = $(selector)
     var mons = container.children('.box-sort-card').get()
@@ -671,6 +689,12 @@ function applyCurrentBoxSort(selector, sortValueMap) {
     mons.sort(function(leftNode, rightNode) {
         var leftSetId = leftNode.getAttribute('data-set-id')
         var rightSetId = rightNode.getAttribute('data-set-id')
+
+        var groupDiff = getBoxGroupRank(leftSetId) - getBoxGroupRank(rightSetId)
+        if (groupDiff !== 0) {
+            return groupDiff
+        }
+
         var leftValue = sortValueMap && Object.prototype.hasOwnProperty.call(sortValueMap, leftSetId)
             ? sortValueMap[leftSetId]
             : getBoxSortMetricValue(BOX_SORT_STATE.key, leftSetId)

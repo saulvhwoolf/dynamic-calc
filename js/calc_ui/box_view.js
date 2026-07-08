@@ -619,7 +619,14 @@
                 offensiveIvPercent: getIvTopPercent(setData, OFFENSIVE_IV_KEYS, OFFENSIVE_IV_DISTRIBUTION),
                 defensiveIvPercent: getIvTopPercent(setData, DEFENSIVE_IV_KEYS, DEFENSIVE_IV_DISTRIBUTION),
                 searchBlob: buildEntrySearchBlob(speciesName, speciesSets, encountersMap),
-                dexNumber: window.pokedex && window.pokedex[speciesName] ? Number(window.pokedex[speciesName].num) || Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER
+                dexNumber: window.pokedex && window.pokedex[speciesName] ? Number(window.pokedex[speciesName].num) || Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER,
+                // slothsandmoons tracker labels imports "Party - x" / "Box - x"; group them
+                // Party -> Box -> everything else so the box view keeps the tracker's pools
+                // (the selected metric still sorts within each group). No-op for other users.
+                groupRank: (function () {
+                    var nn = setData && setData.nn ? String(setData.nn).trim() : "";
+                    return /^Party($| - )/.test(nn) ? 0 : /^Box($| - )/.test(nn) ? 1 : 2;
+                })()
             });
         });
 
@@ -656,6 +663,9 @@
     }
 
     function compareBoxEntries(a, b) {
+        if (a.groupRank !== b.groupRank) {
+            return a.groupRank - b.groupRank; // Party -> Box -> other, then metric within each
+        }
         const diff = getSortValue(b) - getSortValue(a);
         if (diff !== 0) {
             return diff;
