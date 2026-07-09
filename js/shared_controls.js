@@ -1297,10 +1297,14 @@ function shouldInferHiddenPowerFromIVs(moveName) {
 	return typeof TITLE === "string" && TITLE.includes("Platinum");
 }
 
-function shouldUseEmeraldKaizoTypedHiddenPowerMove(moveName) {
-	return typeof TITLE === "string" &&
-		TITLE === "Emerald Kaizo" &&
-		TYPED_HIDDEN_POWER_REGEX.test(moveName || "");
+function shouldUseTypedHiddenPowerMove(moveName) {
+	// Any explicitly-typed Hidden Power (e.g. "Hidden Power Fire") forces that
+	// type straight from the move table, regardless of the mon's IVs — and
+	// without rewriting them. This lets max-IV games (e.g. RR minimal-grinding,
+	// where every mon is 31/31/31... and HP would otherwise infer as Dark) set a
+	// specific HP type just by picking the typed move. Plain, untyped
+	// "Hidden Power" still infers its type from IVs as before.
+	return TYPED_HIDDEN_POWER_REGEX.test(moveName || "");
 }
 
 function getHiddenPowerDetailsFromIVs(pokeObj, moveName) {
@@ -1434,7 +1438,7 @@ function showMoveExtras(moveObj, ppObj=null, fullSetName="", index=null) {
 				
 	var m = moveName.match(HIDDEN_POWER_REGEX);
 	var pokeObj = $(moveObj).closest(".poke-info");
-	var useMoveTableHiddenPower = shouldUseEmeraldKaizoTypedHiddenPowerMove(moveName);
+	var useMoveTableHiddenPower = shouldUseTypedHiddenPowerMove(moveName);
 	var inferredHiddenPower = useMoveTableHiddenPower ? null : getHiddenPowerDetailsFromIVs(pokeObj, moveName);
 	var pokemon = createPokemon(pokeObj);
 
@@ -1444,7 +1448,7 @@ function showMoveExtras(moveObj, ppObj=null, fullSetName="", index=null) {
 
 	if (changingSets) {
 		var previousMoveName = $(moveObj).attr('data-prev');
-		var previousUseMoveTableHiddenPower = shouldUseEmeraldKaizoTypedHiddenPowerMove(previousMoveName);
+		var previousUseMoveTableHiddenPower = shouldUseTypedHiddenPowerMove(previousMoveName);
 		if (m && !inferredHiddenPower && !useMoveTableHiddenPower) {
 			
 

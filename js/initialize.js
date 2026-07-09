@@ -1612,7 +1612,7 @@ function initCalc() {
 
   var head= document.getElementsByTagName('head')[0];
   var script= document.createElement('script');
-  script.src= './js/shared_controls.js?9d2ed17d';
+  script.src= './js/shared_controls.js?sm20260709';
   head.appendChild(script);
 
   memoizedCalc = deepMemoize(calculateAllMoves);
